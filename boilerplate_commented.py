@@ -73,7 +73,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def read_infile(instream):
+def read_instream(instream):
     """Convert raw input for to a manipulatable format.
 
     Arguments:
@@ -83,7 +83,7 @@ def read_infile(instream):
     """
     # If you need to read a csv, create a DataFrame, or whatever it might be,
     # do it here.
-    return infile.read()
+    return instream.read()
 
 
 def main():
