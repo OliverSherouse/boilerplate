@@ -6,20 +6,29 @@ called with the --help or -h option.
 
 """
 
+# Standard Library imports
 import argparse
-import contextlib
-import io
 import logging
-import sys
 
-#
+# External library imports
+# import pandas as pd
+# import numpy as np
+
+
+# Standard Library from-style imports go here
 from pathlib import Path
 
-#
+# External library from-style imports go here
+# from matplotlib import pyplot as plt
+
+# Ideally we all live in a unicode world, but if you have to use something
+# else, you can set it here
 ENCODE_IN = 'utf-8'
 ENCODE_OUT = 'utf-8'
 
-log = logging.getLogger(Path(__file__).stem)
+log = logging.getLogger(
+    __name__ if __name__ != '__main__ ' else Path(__file__).stem
+)
 
 
 def manipulate_data(data):
@@ -29,7 +38,7 @@ def manipulate_data(data):
 
     Arguments:
 
-    * data_in: the data to be manipulated
+    * data: the data to be manipulated
 
     """
     log.info("Doing some fun stuff here!")
@@ -38,17 +47,12 @@ def manipulate_data(data):
 
 def parse_args():
     """Parse command line arguments."""
+    inft = argparse.FileType(encoding=ENCODE_IN)
+    outft = argparse.filetype('w', encoding=ENCODE_OUT)  # , newline='')
+
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-i', '--infile',
-                        type=lambda x: open(x, encoding=ENCODE_IN),
-                        default=io.TextIOWrapper(
-                            sys.stdin.buffer, encoding=ENCODE_IN)
-                        )
-    parser.add_argument('-o', '--outfile',
-                        type=lambda x: open(x, 'w', encoding=ENCODE_OUT),
-                        default=io.TextIOWrapper(
-                            sys.stdout.buffer, encoding=ENCODE_OUT)
-                        )
+    parser.add_argument('infile', nargs='?', type=inft, default=inft('-'))
+    parser.add_argument('-o', '--outfile', type=outft, default=outft('-'))
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument('-v', '--verbose', action='store_const',
                            const=logging.DEBUG, default=logging.INFO)
@@ -62,7 +66,9 @@ def read_instream(instream):
 
     Arguments:
 
-    *Instream: a file-like object
+    * instream: a file-like object
+
+    Returns: probably a DataFrame
 
     """
     return instream.read()
@@ -73,7 +79,8 @@ def main():
     logging.basicConfig(level=args.verbose)
     data = read_instream(args.infile)
     results = manipulate_data(data)
-    args.outfile.write(results)
+    print(results, file=args.outfile)
+
 
 if __name__ == "__main__":
     main()
